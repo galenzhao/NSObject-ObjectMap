@@ -527,6 +527,8 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
 
 #pragma mark - Copy NSObject (initWithObject)
 -(id)initWithObject:(NSObject *)oldObject error:(NSError **)error {
+    //*error = nil;
+    
     NSString *oldClassName = [oldObject nameOfClass];
     NSString *newClassName = [self nameOfClass];
     
@@ -536,6 +538,7 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
         }
     }
     else {
+        if (error != NULL)
         *error = [NSError errorWithDomain:@"MismatchedObjects" code:404 userInfo:@{@"Error":@"Mismatched Object Classes"}];
     }
     
@@ -756,16 +759,19 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
     SOAPObject *soapObject = (SOAPObject *)self;
     NSMutableString *soapString = [[NSMutableString alloc] initWithString:@""];
     
+    SOAPObject *request = obj.Body;
+    assert([request isKindOfClass:[SOAPObject class]]);
+    
     //Open Envelope
-    [soapString appendString:@"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns=\"http://tempuri.org/\">"];
+    [soapString appendString:[NSString stringWithFormat:@"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" %@>", request.xmlns]];
     
     //Request Header
     if (obj.Header) {
         if (soapObject.Header) {
             // Add SoapHeader
-            [soapString appendString:@"<soap:Header>"];
+            [soapString appendString:@"<soapenv:Header>"];
             [soapString appendString:[soapObject.Header xmlStringForSelfNamed:nil]];
-            [soapString appendString:@"</soap:Header>"];
+            [soapString appendString:@"</soapenv:Header>"];
         }
     }
     
@@ -773,14 +779,14 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
     if (obj.Body) {
         if (soapObject.Body) {
             // Add SoapBody
-            [soapString appendString:@"<soap:Body>"];
+            [soapString appendString:@"<soapenv:Body>"];
             [soapString appendString:[obj.Body xmlStringForSelfNamed:nil]];
-            [soapString appendString:@"</soap:Body>"];
+            [soapString appendString:@"</soapenv:Body>"];
         }
     }
     
     //Close Envelope
-    [soapString appendString:@"</soap:Envelope>"];
+    [soapString appendString:@"</soapenv:Envelope>"];
     
     return soapString;
 }
@@ -987,7 +993,9 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
     *objPointer = '\0';
     
     // Return the results as an NSString object
-    return [NSString stringWithCString:strResult encoding:NSUTF8StringEncoding];
+    NSString *result = [NSString stringWithCString:strResult encoding:NSUTF8StringEncoding];
+    free(strResult);
+    return result;
 }
 
 
@@ -996,5 +1004,9 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
 
 
 @implementation SOAPObject
-
+- (NSString *)xmlns
+{
+    DLog(@"please overwrite this");
+    return nil;
+}
 @end

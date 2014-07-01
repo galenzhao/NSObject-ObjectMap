@@ -124,6 +124,7 @@ typedef NS_ENUM(NSInteger, CAPSDataType) {
 @end
 
 @interface SOAPObject : NSObject
+- (NSString *)xmlns;
 @property (nonatomic, retain) id Header;
 @property (nonatomic, retain) id Body;
 @end
