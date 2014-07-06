@@ -861,12 +861,12 @@ static const char _base64EncodingTable[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
 #pragma mark - Base64 Binary Encode/Decode
 
 +(NSData *)base64DataFromString:(NSString *)string {
-    unsigned long ixtext, lentext;
-    unsigned char ch, inbuf[4], outbuf[3];
-    short i, ixinbuf;
+    unsigned long ixtext = 0, lentext = 0;
+    unsigned char ch = 0, inbuf[4] = {0}, outbuf[3] = {0};
+    short i = 0, ixinbuf = 0;
     Boolean flignore, flendtext = false;
-    const unsigned char *tempcstring;
-    NSMutableData *theData;
+    const unsigned char *tempcstring = 0;
+    NSMutableData *theData = nil;
     
     if (string == nil) {
         return [NSData data];
